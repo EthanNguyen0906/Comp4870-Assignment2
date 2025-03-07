@@ -1,7 +1,59 @@
-﻿@page "/"
+﻿@page "/articles"
 
-<PageTitle>Home</PageTitle>
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Blazorise
+@using Blazorise.DataGrid
 
-<h1>Hello, world!</h1>
+<PageTitle>Articles</PageTitle>
 
-Welcome to your new app.
+<article>
+    <h1>Articles</h1>
+
+    <QuickGrid Items="@articles">
+        <Column Field="@(a => a.ArticleId)" Title="ID" Sortable="true" />
+        <Column Field="@(a => a.Title)" Title="Title" Sortable="true" />
+        <Column Field="@(a => a.Body)" Title="Body" Sortable="true" />
+        <Column Field="@(a => a.CreateDate)" Title="Created" Format="yyyy-MM-dd" Sortable="true" />
+        <Column Field="@(a => a.StartDate)" Title="Start Date" Format="yyyy-MM-dd" Sortable="true" />
+        <Column Field="@(a => a.EndDate)" Title="End Date" Format="yyyy-MM-dd" Sortable="true" />
+        <Column Field="@(a => a.ContributorUsername)" Title="Contributor" Sortable="true" />
+    </QuickGrid>
+</article>
+
+@code {
+    private List<Article> articles = new List<Article>
+    {
+        new Article
+        {
+            ArticleId = 1,
+            Title = "Sample Article 1",
+            Body = "This is the body of the first article.",
+            CreateDate = DateTime.Now,
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddDays(7),
+            ContributorUsername = "user1"
+        },
+        new Article
+        {
+            ArticleId = 2,
+            Title = "Sample Article 2",
+            Body = "This is the body of the second article.",
+            CreateDate = DateTime.Now,
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddDays(7),
+            ContributorUsername = "user2"
+        }
+    };
+
+    public class Article
+    {
+        public int ArticleId { get; set; }
+        public string Title { get; set; }
+        public string Body { get; set; }
+        public DateTime CreateDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public string ContributorUsername { get; set; }
+    }
+}
