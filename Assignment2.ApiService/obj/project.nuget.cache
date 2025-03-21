@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "3DD7jviXh0c=",
+  "success": true,
+  "projectFilePath": "/Users/ethannguyen/Documents/Comp4870/Assignment2/Assignment2.ApiService/Assignment2.ApiService.csproj",
+  "expectedPackageFiles": [
+    "/Users/ethannguyen/.nuget/packages/microsoft.aspnetcore.openapi/9.0.1/microsoft.aspnetcore.openapi.9.0.1.nupkg.sha512",
+    "/Users/ethannguyen/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
