@@ -1,0 +1,78 @@
+@page "/register"
+@using Assignment2Library.Data.Models
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@using System.ComponentModel.DataAnnotations
+
+<h2>Create a new account</h2>
+<hr />
+
+<EditForm Model="@registerModel.Input" OnValidSubmit="@HandleValidSubmit" FormName="RegisterForm">
+     <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="registerModel.Input.Email" 
+           @bind-Value:event="oninput"
+           class="form-control" 
+           placeholder="name@example.com" />
+
+        <label>Email</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="registerModel.Input.Password" 
+                   type="password" 
+                   class="form-control" 
+                   placeholder="Password" />
+        <label>Password</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="registerModel.Input.ConfirmPassword" 
+                   type="password" 
+                   class="form-control" 
+                   placeholder="Confirm Password" />
+        <label>Confirm Password</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="registerModel.Input.FirstName" 
+                   class="form-control" 
+                   placeholder="First Name" />
+        <label>First Name</label>
+    </div>
+
+    <div class="form-floating mb-3">
+        <InputText @bind-Value="registerModel.Input.LastName" 
+                   class="form-control" 
+                   placeholder="Last Name" />
+        <label>Last Name</label>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+</EditForm>
+
+<pre>@JsonSerializer.Serialize(registerModel.Input, new JsonSerializerOptions { 
+    WriteIndented = true,
+})</pre>
+@code {
+    private RegisterViewModel registerModel = new RegisterViewModel();
+
+    private async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync(
+            "http://localhost:5144/api/users", 
+            registerModel.Input
+        );
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+        }
+    }
+}

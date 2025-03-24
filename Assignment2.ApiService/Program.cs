@@ -7,6 +7,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<YourDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options => 
+{
+    options.AddPolicy("AllowBlazor", policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:5284"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
 
 builder.Services.AddAntiforgery();
