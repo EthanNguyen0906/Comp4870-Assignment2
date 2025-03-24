@@ -48,42 +48,4 @@ public class UsersController : ControllerBase
     {
         _context = context;
     }
-
-    [HttpPost]
-    public async Task<IActionResult> RegisterUser(
-        [FromBody] RegisterViewModel.InputModel input)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-
-        // Verify password match
-        if (input.Password != input.ConfirmPassword)
-        {
-            return BadRequest("Password and confirmation password do not match.");
-        }
-
-        // Map to User entity
-        var user = new User
-        {
-            Email = input.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(input.Password),
-            FirstName = input.FirstName,
-            LastName = input.LastName,
-            Approved = false,
-            Role = "Contributor"
-        };
-
-        // Check for existing user
-        if (await _context.Users.AnyAsync(u => u.Email == user.Email))
-        {
-            return Conflict("Email already registered");
-        }
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { Message = "Registration successful" });
-    }
 }
