@@ -1,27 +1,32 @@
 using Assignment2.Web.Components;
+using Microsoft.AspNetCore.Components; 
+using System.Net.Http;              
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 1. Register Razor Components
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// 2. Register HttpClient so @inject HttpClient Http works
+builder.Services.AddScoped<HttpClient>(sp =>
+{
+    return new HttpClient { BaseAddress = new Uri("http://localhost:5144/") };
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseAntiforgery();
-
 app.MapStaticAssets();
+
+// 3. Map Razor Components
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
