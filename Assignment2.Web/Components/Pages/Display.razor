@@ -1,0 +1,46 @@
+@page "/articles/details"
+@using Assignment2Library.Data.Models
+@using Assignment2Web.Service
+@inject ArticleStateService ArticleStateService
+@inject NavigationManager NavManager
+
+<PageTitle>Article Details</PageTitle>
+
+<div class="container mt-4">
+    @if (ArticleStateService.SelectedArticle == null)
+    {
+        <p class="text-center">
+            <em>No article selected. Please go back to the articles list.</em>
+        </p>
+        <button class="btn btn-secondary" @onclick="GoBack">Back to Articles</button>
+    }
+    else
+    {
+        var article = ArticleStateService.SelectedArticle;
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">@article.Title</h2>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @(article.Contributor != null 
+                        ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
+                        : article.ContributorUsername)
+                </h6>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Start Date: @article.StartDate.ToShortDateString()<br />
+                        End Date: @article.EndDate.ToShortDateString()
+                    </small>
+                </p>
+                <p class="card-text">@article.Body</p>
+                <button class="btn btn-secondary" @onclick="GoBack">Back to Articles</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/");
+    }
+}

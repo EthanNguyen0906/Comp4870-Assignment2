@@ -1,4 +1,5 @@
 using Assignment2.Web.Components;
+using Assignment2Web.Service;
 using Microsoft.AspNetCore.Components; 
 using System.Net.Http;              
 
@@ -13,6 +14,8 @@ builder.Services.AddScoped<HttpClient>(sp =>
 {
     return new HttpClient { BaseAddress = new Uri("http://localhost:5144/") };
 });
+
+builder.Services.AddSingleton<ArticleStateService>();
 
 var app = builder.Build();
 
