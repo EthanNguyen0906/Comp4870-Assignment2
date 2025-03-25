@@ -3,38 +3,38 @@ using Microsoft.EntityFrameworkCore;
 using Assignment2Api.Data;
 using Assignment2Library.Data.Models;
 
+namespace Assignment2.ApiService.Controllers
+{
+
 [ApiController]
 [Route("api/[controller]")]
 public class ArticlesController : ControllerBase
 {
     private readonly YourDbContext _context;
+    private readonly ILogger<ArticlesController> _logger;
 
-    public ArticlesController(YourDbContext context)
+    public ArticlesController(YourDbContext context, ILogger<ArticlesController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
-    // GET: api/articles/articles
-    [HttpGet("articles")]
-    public async Task<IActionResult> GetValidArticles(){
-        Console.WriteLine("Hi");
+    // GET: api/articles
+    [HttpGet]
+    public async Task<IActionResult> GetValidArticles()
+    {
+        _logger.LogInformation("Fetching valid articles");
+
         var validArticles = await _context.Articles
             .Where(a => DateTime.Now < a.EndDate)
             .ToListAsync();
+
         return Ok(validArticles);
     }
 
-    public bool isValid(Article article){
-    if (article == null){
-        return false;
-    }
-    
-    DateTime currentDate = DateTime.Now;
-    if (currentDate >= article.EndDate){
-        return false;
-    }
-
-    return true;
+    private bool IsValid(Article article)
+    {
+        return article != null && DateTime.Now < article.EndDate;
     }
 }
 
@@ -48,4 +48,16 @@ public class UsersController : ControllerBase
     {
         _context = context;
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
+    }
 }
+
+
+}
+
+

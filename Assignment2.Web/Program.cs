@@ -1,6 +1,5 @@
+using Assignment2.Web;
 using Assignment2.Web.Components;
-using Microsoft.AspNetCore.Components; 
-using System.Net.Http;              
 
 var builder = WebApplication.CreateBuilder(args);
 
