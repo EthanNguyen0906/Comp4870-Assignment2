@@ -40,9 +40,7 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-// If you want an email sender, ensure it implements IEmailSender:
 
-// ✅ Register the API client and HttpClient here
 builder.Services.AddScoped<Assignment2Server.Services.ArticlesApiClient>();
 
 builder.Services.AddHttpClient<Assignment2Server.Services.ArticlesApiClient>(client =>
