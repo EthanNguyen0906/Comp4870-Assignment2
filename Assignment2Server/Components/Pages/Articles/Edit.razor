@@ -1,0 +1,67 @@
+@page "/article/edit/{Id:int}"
+@using Assignment2Library.Data.Models
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@rendermode InteractiveServer
+@inject Assignment2Server.Services.ArticlesApiClient ArticleService
+
+<h2>Edit Article</h2>
+
+@if (article == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="article" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <InputHidden @bind-Value="article.ArticleId" />
+
+        <div class="form-group">
+            <label>Title</label>
+            <InputText class="form-control" @bind-Value="article.Title" required />
+        </div>
+
+        <div class="form-group">
+            <label>Body</label>
+            <InputTextArea class="form-control" @bind-Value="article.Body" rows="5" required />
+        </div>
+
+        <div class="form-group">
+            <label>Start Date</label>
+            <InputDate class="form-control" @bind-Value="article.StartDate" />
+        </div>
+
+        <div class="form-group">
+            <label>End Date</label>
+            <InputDate class="form-control" @bind-Value="article.EndDate" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Article? article;
+
+    protected override async Task OnInitializedAsync()
+    {
+        article = await ArticleService.GetArticleByIdAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await ArticleService.UpdateArticleAsync(article!);
+        Navigation.NavigateTo($"/article/display/{article!.ArticleId}");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo($"/article/display/{Id}");
+    }
+}

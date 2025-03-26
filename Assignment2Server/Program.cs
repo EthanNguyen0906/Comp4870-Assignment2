@@ -45,7 +45,7 @@ builder.Services.AddScoped<Assignment2Server.Services.ArticlesApiClient>();
 
 builder.Services.AddHttpClient<Assignment2Server.Services.ArticlesApiClient>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7189"); // Make sure this matches your API port
+    client.BaseAddress = new Uri("https://localhost:7189"); 
 });
 
 var app = builder.Build();

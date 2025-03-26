@@ -26,6 +26,23 @@ public class ArticlesApiClient
         response.EnsureSuccessStatusCode();
     }
 
+     public async Task<List<Article>> GetUserArticlesAsync()
+    {
+        var articles = await _http.GetFromJsonAsync<List<Article>>("/api/articles/user");
+        return articles ?? new List<Article>();
+    }
+
+    public async Task<Article?> GetArticleByIdAsync(int id)
+    {
+        return await _http.GetFromJsonAsync<Article>($"/api/articles/{id}");
+    }
+
+    public async Task UpdateArticleAsync(Article article)
+    {
+        await _http.PutAsJsonAsync($"/api/articles/{article.ArticleId}", article);
+    }
+
+
     public async Task<Article?> GetByIdAsync(int id) =>
         await _http.GetFromJsonAsync<Article>($"api/articles/{id}");
 

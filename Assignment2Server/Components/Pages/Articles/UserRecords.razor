@@ -1,0 +1,79 @@
+@page "/article/userrecords"
+@inject NavigationManager Navigation
+@inject Assignment2Server.Services.ArticlesApiClient ArticleService
+@using Assignment2Library.Data.Models
+@rendermode InteractiveServer
+
+
+
+<h1 class="mb-4">My Published Articles</h1>
+
+@if (articles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (!articles.Any())
+{
+    <p class="text-muted">You haven't published any articles yet.</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var article in articles)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 d-flex flex-column shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">@article.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">
+                            Published on: @article.CreateDate.ToString("MMMM dd, yyyy")
+                        </h6>
+                        <p class="card-text">
+                            @{
+                                var excerpt = article.Body.Length > 100
+                                    ? article.Body.Substring(0, 100)
+                                    : article.Body;
+                            }
+                            @excerpt
+                            @if (article.Body.Length > 100)
+                            {
+                                <a @onclick="() => ViewArticle(article.ArticleId)">more...</a>
+                            }
+                        </p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-start">
+                                @if (article.Body.Length < 100)
+                                {
+                                    <button class="btn btn-info" @onclick="() => ViewArticle(article.ArticleId)">
+                                        Display in full view
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<button class="btn btn-primary mt-4" @onclick="BackToAllArticles">Back to All Articles</button>
+
+@code {
+    private List<Article>? articles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        articles = await ArticleService.GetUserArticlesAsync(); 
+    }
+
+    private void ViewArticle(int id)
+    {
+        Navigation.NavigateTo($"/article/display/{id}");
+    }
+
+    private void BackToAllArticles()
+    {
+        Navigation.NavigateTo("/article");
+    }
+}
