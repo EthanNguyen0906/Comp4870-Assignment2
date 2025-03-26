@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Assignment2Api.Data;
+using Assignment2Library.Data;
 using Assignment2Library.Data.Models;
 
 namespace Assignment2.ApiService.Controllers

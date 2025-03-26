@@ -1,0 +1,61 @@
+@page "/admin/users"
+@using Assignment2Library.Data.Models
+@using Assignment2Server.Services
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject IUserService UserService
+
+<PageTitle>Admin - Users</PageTitle>
+
+<h1>User Management</h1>
+
+@if (users == null)
+{
+    <p><em>Loading users...</em></p>
+}
+else if (!users.Any())
+{
+    <div class="alert alert-info">No users found.</div>
+}
+else
+{
+    <QuickGrid Items="users">
+        <PropertyColumn Property="@(user => user.Email)" Title="Email" Sortable="true" />
+        <PropertyColumn Property="@(user => user.FirstName)" Title="First Name" Sortable="true" />
+        <PropertyColumn Property="@(user => user.LastName)" Title="Last Name" Sortable="true" />
+        <PropertyColumn Property="@(user => user.Role)" Title="Role" Sortable="true" />
+
+        <TemplateColumn Title="Approved">
+            <PropertyColumn Property="@(user => user.Approved)" Title="Role" Sortable="true" />
+        </TemplateColumn>
+
+        <TemplateColumn Title="Actions">
+            <Template Context="user">
+                <button class="btn btn-sm btn-primary">
+                    @(user.Role == "Admin" ? "Demote" : "Promote")
+                </button>
+                <button class="btn btn-sm @(user.Approved ? "btn-warning" : "btn-success")">
+                    @(user.Approved ? "Revoke" : "Approve")
+                </button>
+                <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">
+                    Delete
+                </button>
+            </Template>
+        </TemplateColumn>
+    </QuickGrid>
+}
+
+@code {
+    // Change this from QuickGrid<User> to a collection of users
+    private List<User>? users;
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UserService.GetUsersAsync();
+    }
+
+    private async Task DeleteUser(string id)
+    {
+        await UserService.DeleteUserAsync(id);
+        users = await UserService.GetUsersAsync();
+    }
+}

@@ -1,4 +1,4 @@
-namespace Assignment2Api.Data;
+namespace Assignment2Library.Data;
 using Microsoft.EntityFrameworkCore;
 using Assignment2Library.Data.Models;
 
