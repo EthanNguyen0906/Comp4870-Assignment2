@@ -1,0 +1,50 @@
+@page "/articles/create"
+@using Assignment2Library.Data.Models
+@inject NavigationManager Navigation
+@inject Assignment2Server.Services.ArticlesApiClient ArticleService
+@rendermode InteractiveServer
+
+
+<h2>Create a New Article</h2>
+
+<EditForm Model="@article" OnValidSubmit="HandleValidSubmit" FormName="CreateArticleForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Title</label>
+        <InputText @bind-Value="article.Title" class="form-control" required />
+        <ValidationMessage For="@(() => article.Title)" />
+    </div>
+
+    <div class="form-group">
+        <label>Body</label>
+        <InputTextArea @bind-Value="article.Body" class="form-control" rows="5" required />
+        <ValidationMessage For="@(() => article.Body)" />
+    </div>
+
+    <div class="form-group">
+        <label>Start Date</label>
+        <InputDate @bind-Value="article.StartDate" class="form-control" />
+        <ValidationMessage For="@(() => article.StartDate)" />
+    </div>
+
+    <div class="form-group">
+        <label>End Date</label>
+        <InputDate @bind-Value="article.EndDate" class="form-control" />
+        <ValidationMessage For="@(() => article.EndDate)" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Submit</button>
+</EditForm>
+
+
+@code {
+    private Article article = new();
+
+    private async Task HandleValidSubmit()
+    {
+        await ArticleService.CreateArticleAsync(article);
+        Navigation.NavigateTo("/articles");
+    }
+}

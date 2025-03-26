@@ -1,15 +1,17 @@
-namespace Assignment2Library.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Assignment2Library.Data.Models;
 
-public class YourDbContext : DbContext
+namespace Assignment2Library.Data
 {
-    public YourDbContext(DbContextOptions<YourDbContext> options)
-        : base(options)
+    public class YourDbContext : IdentityDbContext<User>
     {
+        public YourDbContext(DbContextOptions<YourDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Article> Articles { get; set; }
+       
     }
-
-    public DbSet<Article> Articles { get; set; }
-
-    public DbSet<User> Users { get; set; }
 }

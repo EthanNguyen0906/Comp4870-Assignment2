@@ -40,7 +40,13 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-// If you want an email sender, ensure it implements IEmailSender:
+
+builder.Services.AddScoped<Assignment2Server.Services.ArticlesApiClient>();
+
+builder.Services.AddHttpClient<Assignment2Server.Services.ArticlesApiClient>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7189"); // Make sure this matches your API port
+});
 
 var app = builder.Build();
 

@@ -1,3 +1,5 @@
+using Assignment2Library.Data.Models;
+
 namespace Assignment2Server.Services
 {
     public interface IUserService
@@ -12,5 +14,6 @@ namespace Assignment2Server.Services
 
         Task DemoteUserAsync(string id);
 
+        Task<User?> GetUserByEmailAsync(string email);
     }
 }
