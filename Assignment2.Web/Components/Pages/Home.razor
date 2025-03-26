@@ -158,7 +158,7 @@
     {
         try
         {
-            articles = await Http.GetFromJsonAsync<Article[]>("http://localhost:5144/api/Articles");
+            articles = await Http.GetFromJsonAsync<Article[]>("api/Articles");
         }
         catch (Exception ex)
         {
