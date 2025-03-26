@@ -17,7 +17,8 @@ else
         <DataAnnotationsValidator />
         <ValidationSummary />
 
-        <InputHidden @bind-Value="article.ArticleId" />
+        <input type="hidden" value="@article.ArticleId" />
+
 
         <div class="form-group">
             <label>Title</label>
