@@ -1,5 +1,6 @@
 using Assignment2.Web;
 using Assignment2.Web.Components;
+
 using Assignment2Web.Service;
 using Microsoft.AspNetCore.Components; 
 using System.Net.Http;              
@@ -31,7 +32,6 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
 
-// 3. Map Razor Components
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

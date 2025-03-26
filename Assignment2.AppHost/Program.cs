@@ -3,11 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Projects;
 
-
 var builder = DistributedApplication.CreateBuilder(args);
-
-
-
 
 // What about SQL Server?
 var blogdb = builder.AddSqlServer("localhost")

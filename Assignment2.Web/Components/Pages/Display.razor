@@ -1,22 +1,17 @@
-@page "/articles/details"
+@page "/articles/details/{ArticleId:int}"
 @using Assignment2Library.Data.Models
-@using Assignment2Web.Service
-@inject ArticleStateService ArticleStateService
+@inject HttpClient Http
 @inject NavigationManager NavManager
 
 <PageTitle>Article Details</PageTitle>
 
 <div class="container mt-4">
-    @if (ArticleStateService.SelectedArticle == null)
+    @if (article == null)
     {
-        <p class="text-center">
-            <em>No article selected. Please go back to the articles list.</em>
-        </p>
-        <button class="btn btn-secondary" @onclick="GoBack">Back to Articles</button>
+        <p class="text-center"><em>Loading article...</em></p>
     }
     else
     {
-        var article = ArticleStateService.SelectedArticle;
         <div class="card">
             <div class="card-body">
                 <h2 class="card-title">@article.Title</h2>
@@ -32,15 +27,27 @@
                     </small>
                 </p>
                 <p class="card-text">@article.Body</p>
-                <button class="btn btn-secondary" @onclick="GoBack">Back to Articles</button>
+                <a class="btn btn-secondary" href="/">Back to Articles</a>
             </div>
         </div>
     }
 </div>
 
 @code {
-    private void GoBack()
+    [Parameter]
+    public int ArticleId { get; set; }
+
+    private Article? article;
+
+    protected override async Task OnInitializedAsync()
     {
-        NavManager.NavigateTo("/");
+        try
+        {
+            article = await Http.GetFromJsonAsync<Article>($"http://localhost:5144/api/Articles/{ArticleId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching article with id {ArticleId}: {ex.Message}");
+        }
     }
 }
