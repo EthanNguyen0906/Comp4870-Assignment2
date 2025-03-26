@@ -1,0 +1,70 @@
+@page "/articles/display/{ArticleId:int}"
+@inject NavigationManager Navigation
+@inject Assignment2Server.Services.ArticlesApiClient ArticleService
+@using Assignment2Library.Data.Models
+@rendermode InteractiveServer
+
+<h2 class="text-primary">@article?.Title</h2>
+
+@if (article != null)
+{
+    <div class="container mt-4">
+        <div class="card shadow-sm border rounded p-4">
+            <p class="text-muted"><strong>By:</strong> @article.ContributorUsername</p>
+            <p class="text-muted"><strong>Published on:</strong> @article.CreateDate.ToString("MMMM dd, yyyy")</p>
+        </div>
+
+        <hr />
+
+        <div class="card shadow-sm border rounded p-4 mt-3">
+            <p class="article-body">@((MarkupString)article.Body)</p>
+        </div>
+
+        <hr />
+
+        <div class="card shadow-sm border rounded p-4 mt-3">
+            <p><strong>Start Date:</strong> @article.StartDate.ToString("MMMM dd, yyyy")</p>
+            <p><strong>End Date:</strong> @article.EndDate.ToString("MMMM dd, yyyy")</p>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <button class="btn btn-primary" @onclick="GoBack">Back to Home</button>
+
+            <div>
+                <button class="btn btn-warning ms-2" @onclick="EditArticle">Edit</button>
+                <button class="btn btn-danger ms-2" @onclick="DeleteArticle">Delete</button>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted">Loading article...</p>
+}
+
+<style>
+    .article-body {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+</style>
+
+@code {
+    [Parameter] public int ArticleId { get; set; }
+
+    private Article? article;
+
+    protected override async Task OnInitializedAsync()
+    {
+        article = await ArticleService.GetByIdAsync(ArticleId);
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/articles");
+    private void EditArticle() => Navigation.NavigateTo($"/article/edit/{ArticleId}");
+
+    private async Task DeleteArticle()
+    {
+        await ArticleService.DeleteAsync(ArticleId);
+        Navigation.NavigateTo("/articles");
+    }
+}
