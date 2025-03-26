@@ -8,58 +8,147 @@
 
 <PageTitle>Articles</PageTitle>
 
+<style>
+    /* Full height layout for the page */
+    body, html {
+        height: 100%;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        height: 100%;
+        margin-top: 20px;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        flex-grow: 1; /* Ensures content fills available space */
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .table {
+        margin-top: 20px;
+        width: 100%; /* Full width of the parent container */
+        table-layout: fixed; /* Make sure all columns fit in the available space */
+    }
+
+    .table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        text-align: left;
+        padding: 12px 15px;
+    }
+
+    .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+    }
+
+    .more-link {
+        font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .more-link:hover {
+        text-decoration: underline;
+    }
+
+    .pagination-controls {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .article-excerpt {
+        max-width: 500px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .article-dates {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    /* Add space between table and top of the page */
+    .table-container {
+        margin-top: 20px;
+        flex-grow: 1;
+    }
+</style>
+
 <div class="container">
-    @if (articles == null)
-    {
-        <p class="text-center"><em>Loading articles...</em></p>
-    }
-    else if (!articles.Any())
-    {
-        <p class="text-center">No articles found.</p>
-    }
-    else
-    {
-        <QuickGrid TGridItem="Article" Items="articles.AsQueryable()" class="table">
-            <PropertyColumn Property="@(a => a.Title)" Title="Title" Sortable="true" />
-            
-            <TemplateColumn Title="Contributor" Context="article">
-                @(article.Contributor != null 
-                    ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
-                    : article.ContributorUsername)
-            </TemplateColumn>
+    <div class="content">
+        <h1>Articles</h1>
 
-            <TemplateColumn Title="Dates" Context="article">
-                <small class="text-muted">
-                    Start: @article.StartDate.ToShortDateString()<br />
-                    End: @article.EndDate.ToShortDateString()
-                </small>
-            </TemplateColumn>
+        @if (articles == null)
+        {
+            <p class="text-center"><em>Loading articles...</em></p>
+        }
+        else if (!articles.Any())
+        {
+            <p class="text-center">No articles found.</p>
+        }
+        else
+        {
+            <div class="table-container">
+                <QuickGrid TGridItem="Article" Items="articles.AsQueryable()" class="table table-striped">
+                    <PropertyColumn Property="@(a => a.Title)" Title="Title" Sortable="true" />
+                    
+                    <TemplateColumn Title="Contributor" Context="article">
+                        @(article.Contributor != null 
+                            ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
+                            : article.ContributorUsername)
+                    </TemplateColumn>
 
-            <TemplateColumn Title="Excerpt" Context="article">
-                @{
-                    var excerpt = article.Body.Length > 100 
-                        ? article.Body.Substring(0, 100) 
-                        : article.Body;
-                }
-                @excerpt
-                @if (article.Body.Length > 100)
-                {
-                    <NavLink class="more-link" href="@($"/articles/details/{article.ArticleId}")">
-                        more...
-                    </NavLink>
-                }
-            </TemplateColumn>
+                    <TemplateColumn Title="Dates" Context="article">
+                        <small class="text-muted article-dates">
+                            Start: @article.StartDate.ToShortDateString()<br />
+                            End: @article.EndDate.ToShortDateString()
+                        </small>
+                    </TemplateColumn>
 
-            <TemplateColumn Title="Actions" Context="article">
-                @if (article.Body.Length <= 200)
-                {
-                    <NavLink class="btn btn-info btn-sm" href="@($"/articles/details/{article.ArticleId}")">
-                        Full View
-                    </NavLink>
-                }
-            </TemplateColumn>
-        </QuickGrid>
-    }
+                    <TemplateColumn Title="Excerpt" Context="article">
+                        <div class="article-excerpt">
+                            @{
+                                var excerpt = article.Body.Length > 100 
+                                    ? article.Body.Substring(0, 100) 
+                                    : article.Body;
+                            }
+                            @excerpt
+                            @if (article.Body.Length > 100)
+                            {
+                                <NavLink class="more-link" href="@($"/articles/details/{article.ArticleId}")">
+                                    more...
+                                </NavLink>
+                            }
+                        </div>
+                    </TemplateColumn>
+
+                    <TemplateColumn Title="Actions" Context="article">
+                        @if (article.Body.Length <= 200)
+                        {
+                            <NavLink class="btn btn-info btn-sm" href="@($"/articles/details/{article.ArticleId}")">
+                                Full View
+                            </NavLink>
+                        }
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        }
+    </div>
 </div>
 
 @code {

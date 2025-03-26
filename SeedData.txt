@@ -1,0 +1,53 @@
+After running the migration in Assignment2Server (DO THIS FIRST!)
+Run the following insert into your database.
+This seeds an admin user with 
+email: newadmin@admin.com
+password: Above742!
+
+
+INSERT INTO [dbo].[AspNetUsers]
+(
+    [Id],
+    [FirstName],
+    [LastName],
+    [Role],
+    [Approved],
+    [UserName],
+    [NormalizedUserName],
+    [Email],
+    [NormalizedEmail],
+    [EmailConfirmed],
+    [PasswordHash],
+    [SecurityStamp],
+    [ConcurrencyStamp],
+    [PhoneNumber],
+    [PhoneNumberConfirmed],
+    [TwoFactorEnabled],
+    [LockoutEnd],
+    [LockoutEnabled],
+    [AccessFailedCount],
+    [Discriminator]
+)
+VALUES
+(
+    'e8a8a80e-4db1-4b0a-9a57-7c2f4f7b91b0',  -- New unique Id
+    'Radmir',                                  -- FirstName remains
+    'Garipov',                                 -- LastName remains
+    'Admin',                                   -- Role remains
+    1,                                         -- Approved (1 means true)
+    'newadmin@admin.com',                      -- New UserName
+    'NEWADMIN@ADMIN.COM',                      -- New NormalizedUserName
+    'newadmin@admin.com',                      -- New Email
+    'NEWADMIN@ADMIN.COM',                      -- New NormalizedEmail
+    0,                                         -- EmailConfirmed remains (0 means false)
+    'AQAAAAIAAYagAAAAEDHAHLKPkswldRUEViHQ1pWZCv34MKwdTiPQcwspTpE7yMu+Bpmu9uo8nOIdFH9QdA==',  -- Same password hash
+    'ABC123SECURITY',                          -- New SecurityStamp (must be unique)
+    'ABC123CONCURRENCY',                       -- New ConcurrencyStamp (must be unique)
+    NULL,                                      -- PhoneNumber remains NULL
+    0,                                         -- PhoneNumberConfirmed remains false
+    0,                                         -- TwoFactorEnabled remains false
+    NULL,                                      -- LockoutEnd remains NULL
+    1,                                         -- LockoutEnabled (true)
+    0,                                         -- AccessFailedCount
+    'User'                                     -- Discriminator (if using TPH, otherwise remove)
+);
