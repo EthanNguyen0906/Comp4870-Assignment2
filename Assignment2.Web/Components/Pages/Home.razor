@@ -1,68 +1,65 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using System.Net.Http.Json
 @using Assignment2Library.Data.Models
+@using Microsoft.AspNetCore.Components.QuickGrid
 @inject HttpClient Http
 @inject NavigationManager NavManager
 
 <PageTitle>Articles</PageTitle>
 
 <div class="container">
-    <div class="row">
-        @if (articles == null)
-        {
-            <p class="text-center"><em>Loading articles...</em></p>
-        }
-        else if (!articles.Any())
-        {
-            <p class="text-center">No articles found.</p>
-        }
-        else
-        {
-            @foreach (var article in articles)
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 d-flex flex-column shadow-sm">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">@article.Title</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">
-                                @(article.Contributor != null 
-                                    ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
-                                    : article.ContributorUsername)
-                            </h6>
-                            <p class="card-text">
-                                <small class="text-muted">
-                                    Start Date: @article.StartDate.ToShortDateString()<br />
-                                    End Date: @article.EndDate.ToShortDateString()
-                                </small>
-                            </p>
-                            <p class="card-text">
-                                @{
-                                    var excerpt = article.Body.Length > 100 ? article.Body.Substring(0, 100) : article.Body;
-                                }
-                                @excerpt
-                                @if (article.Body.Length > 100)
-                                {
-                                    <!-- Standard anchor for navigation -->
-                                    <a class="more-link" href="@($"/articles/details/{article.ArticleId}")">
-                                        more...
-                                    </a>
-                                }
-                            </p>
-                            <div class="mt-auto">
-                                @if (article.Body.Length <= 200)
-                                {
-                                    <!-- Standard anchor for navigation -->
-                                    <a class="btn btn-info" href="@($"/articles/details/{article.ArticleId}")">
-                                        Display in full view
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        }
-    </div>
+    @if (articles == null)
+    {
+        <p class="text-center"><em>Loading articles...</em></p>
+    }
+    else if (!articles.Any())
+    {
+        <p class="text-center">No articles found.</p>
+    }
+    else
+    {
+        <QuickGrid TGridItem="Article" Items="articles.AsQueryable()" class="table">
+            <PropertyColumn Property="@(a => a.Title)" Title="Title" Sortable="true" />
+            
+            <TemplateColumn Title="Contributor" Context="article">
+                @(article.Contributor != null 
+                    ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
+                    : article.ContributorUsername)
+            </TemplateColumn>
+
+            <TemplateColumn Title="Dates" Context="article">
+                <small class="text-muted">
+                    Start: @article.StartDate.ToShortDateString()<br />
+                    End: @article.EndDate.ToShortDateString()
+                </small>
+            </TemplateColumn>
+
+            <TemplateColumn Title="Excerpt" Context="article">
+                @{
+                    var excerpt = article.Body.Length > 100 
+                        ? article.Body.Substring(0, 100) 
+                        : article.Body;
+                }
+                @excerpt
+                @if (article.Body.Length > 100)
+                {
+                    <NavLink class="more-link" href="@($"/articles/details/{article.ArticleId}")">
+                        more...
+                    </NavLink>
+                }
+            </TemplateColumn>
+
+            <TemplateColumn Title="Actions" Context="article">
+                @if (article.Body.Length <= 200)
+                {
+                    <NavLink class="btn btn-info btn-sm" href="@($"/articles/details/{article.ArticleId}")">
+                        Full View
+                    </NavLink>
+                }
+            </TemplateColumn>
+        </QuickGrid>
+    }
 </div>
 
 @code {
