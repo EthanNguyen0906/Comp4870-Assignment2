@@ -1,3 +1,4 @@
+After running the migration in Assignment2Server (DO THIS FIRST!)
 Run the following insert into your database.
 This seeds an admin user with 
 email: newadmin@admin.com
