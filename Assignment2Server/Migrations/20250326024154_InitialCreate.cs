@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Assignment2Server.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateIdentitySchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,30 +73,6 @@ namespace Assignment2Server.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Articles",
-                columns: table => new
-                {
-                    ArticleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ContributorUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContributorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Articles", x => x.ArticleId);
-                    table.ForeignKey(
-                        name: "FK_Articles_AspNetUsers_ContributorId",
-                        column: x => x.ContributorId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -186,20 +160,6 @@ namespace Assignment2Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "Approved", "ConcurrencyStamp", "Email", "EmailConfirmed", "FirstName", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Role", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { "a27b5b97-aac2-4b7a-9b06-b2f633f49c68", 0, true, "9411710c-e5fe-4bcb-8d22-75f1a7c2a78d", "jane.smith@example.com", true, "Jane", "Smith", false, null, "JANE.SMITH@EXAMPLE.COM", "JANE.SMITH@EXAMPLE.COM", "AQAAAAIAAYagAAAAEBNov2F9/yP0LlFcRILO4F2g9udV8s+DOGbSiViI+fjyhQaqFgcVOFI/S/+60z8/+A==", null, false, "Admin", "a27b5b97-aac2-4b7a-9b06-b2f633f49c68", false, "jane.smith@example.com" },
-                    { "b1933961-7c4a-47ca-9bd4-f2532c3fdd6f", 0, true, "1b70f621-1b34-402b-bb8c-1d50d1522d1c", "john.doe@example.com", true, "John", "Doe", false, null, "JOHN.DOE@EXAMPLE.COM", "JOHN.DOE@EXAMPLE.COM", "AQAAAAIAAYagAAAAEEkPjKGUVPWp3dYyIGiZFYReM304s3MtRKqtX8Y9aQ4uGRgajy7YfzTL3NpkfFOSsQ==", null, false, "Contributor", "b1933961-7c4a-47ca-9bd4-f2532c3fdd6f", false, "john.doe@example.com" }
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Articles_ContributorId",
-                table: "Articles",
-                column: "ContributorId");
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -243,9 +203,6 @@ namespace Assignment2Server.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Articles");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 

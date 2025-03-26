@@ -15,7 +15,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString),
+    ServiceLifetime.Scoped);
 
 builder.Services.AddIdentityCore<User>(options => 
     options.SignIn.RequireConfirmedAccount = false)
@@ -45,7 +46,7 @@ builder.Services.AddScoped<Assignment2Server.Services.ArticlesApiClient>();
 
 builder.Services.AddHttpClient<Assignment2Server.Services.ArticlesApiClient>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7189"); 
+    client.BaseAddress = new Uri("http://localhost:5297"); 
 });
 
 var app = builder.Build();

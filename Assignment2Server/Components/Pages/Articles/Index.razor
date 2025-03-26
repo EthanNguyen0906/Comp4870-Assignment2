@@ -7,20 +7,16 @@
 
 <h1 class="mb-0">Articles</h1>
 
+    <div class="d-flex justify-content-between mt-3 mb-3">
+        <button class="btn btn-primary btn-lg shadow-sm" @onclick="ViewUserArticles">
+            <i class="bi bi-file-earmark-text me-2"></i> My Published Articles
+        </button>
 
-    <div class="text-end mb-3">
         <button class="btn btn-success btn-lg shadow-sm" @onclick="CreateArticle">
             <i class="bi bi-plus-circle-fill me-2"></i> Create Article
         </button>
     </div>
 
-
-
-    <div class="mb-3">
-        <button class="btn btn-primary btn-lg shadow-sm" @onclick="ViewUserArticles">
-            <i class="bi bi-file-earmark-text me-2"></i> My Published Articles
-        </button>
-    </div>
 
 <div class="row">
     @if (articles != null)
@@ -63,7 +59,7 @@
 </div>
 
 @code {
-    private List<Article> articles;
+    private List<Article>? articles;
     private bool isAuthenticated;
     private bool approved = true; // Replace with logic to load from a service or claim
 

@@ -488,3 +488,5 @@ $RECYCLE.BIN/
 
 # Ignore all bin directories
 **/bin/
+
+appsettings.json

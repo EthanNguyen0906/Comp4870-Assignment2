@@ -54,6 +54,20 @@ namespace Assignment2.ApiService.Controllers
             return Ok(article);
         }
 
+        // POST: api/articles
+        [HttpPost]
+        public async Task<IActionResult> CreateArticle([FromBody] Article article)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _context.Articles.Add(article);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetArticle), new { id = article.ArticleId }, article);
+        }
+
+
         private bool IsValid(Article article)
         {
             return article != null && DateTime.Now < article.EndDate;

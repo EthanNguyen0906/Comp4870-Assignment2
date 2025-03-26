@@ -35,8 +35,12 @@
         <ValidationMessage For="@(() => article.EndDate)" />
     </div>
 
-    <button type="submit" class="btn btn-success">Submit</button>
+    <div class="d-flex justify-content-between mt-3 mb-3">
+        <button class="btn btn-secondary mb-3" @onclick="BackToArticles">← Back to Articles</button>
+        <button type="submit" class="btn btn-success mb-3">Submit</button>
+    </div>
 </EditForm>
+
 
 
 @code {
@@ -45,6 +49,11 @@
     private async Task HandleValidSubmit()
     {
         await ArticleService.CreateArticleAsync(article);
+        Navigation.NavigateTo("/articles");
+    }
+
+    private async Task BackToArticles()
+    {
         Navigation.NavigateTo("/articles");
     }
 }
