@@ -10,22 +10,20 @@ namespace Assignment2Server.Services
 {
     public class UserService : IUserService
     {
-         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly UserManager<User> _userManager;
         private readonly ConcurrentDictionary<string, SemaphoreSlim> _userLocks = new();
 
         public UserService(
-            IDbContextFactory<ApplicationDbContext> contextFactory,
             UserManager<User> userManager)
         {
-            _contextFactory = contextFactory;
             _userManager = userManager;
         }
 
         public async Task<List<User>> GetUsersAsync()
         {
-            await using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Users.AsNoTracking().ToListAsync();
+            return await _userManager.Users
+                .AsNoTracking()
+                .ToListAsync();
         }
 
 

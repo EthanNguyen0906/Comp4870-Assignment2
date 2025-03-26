@@ -1,6 +1,5 @@
 @page "/admin/users"
 @rendermode InteractiveServer
-@using Assignment2Library.Data
 @using Assignment2Library.Data.Models
 @using Assignment2Server.Services
 @using Microsoft.AspNetCore.Components.QuickGrid
@@ -8,7 +7,6 @@
 @using Microsoft.JSInterop
 @inject IUserService UserService
 @implements IAsyncDisposable
-@inject IDbContextFactory<YourDbContext> DbContextFactory
 
 
 <PageTitle>Admin - Users</PageTitle>
@@ -67,8 +65,8 @@ else
         await _loadLock.WaitAsync(_cts.Token);
         try
         {
-            using var context = await DbContextFactory.CreateDbContextAsync(_cts.Token);
-            users = await context.Users.AsNoTracking().ToListAsync(_cts.Token);
+            
+            users = await UserService.GetUsersAsync();
             StateHasChanged();
         }
         catch (OperationCanceledException)
