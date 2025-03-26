@@ -1,0 +1,73 @@
+﻿@page "/articles"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.EntityFrameworkCore
+@using Assignment2Library.Data.Models
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<PageTitle>Articles</PageTitle>
+
+<h1>Articles</h1>
+
+<div class="grid" tabindex="-1">
+    <QuickGrid ItemsProvider="@articlesProvider" Virtualize="true" Pagination="@pagination">
+        <PropertyColumn Title="ID" Property="@(a => a.ArticleId)" Sortable="true" />
+        <PropertyColumn Title="Title" Property="@(a => a.Title)" Sortable="true" />
+        <PropertyColumn Title="Title" Property="@(a => a.Body)" Sortable="true" />
+        <PropertyColumn Title="Created" Property="@(a => a.CreateDate)" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Title="Start Date" Property="@(a => a.StartDate)" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Title="End Date" Property="@(a => a.EndDate)" Format="yyyy-MM-dd" Sortable="true" />
+        <PropertyColumn Title="Contributor" Property="@(a => a.ContributorUsername)" Sortable="true" />
+        
+        <TemplateColumn>
+            <a href="@($"article/{context.ArticleId}")" class="btn btn-sm btn-primary">View</a>
+        </TemplateColumn>
+    </QuickGrid>
+</div>
+
+@if (pagination != null)
+{
+    <div class="pagination-controls">
+        <Paginator State="@pagination" />
+    </div>
+}
+
+<p>Total: <strong>@totalArticles articles found</strong></p>
+
+@code {
+    private GridItemsProvider<Article>? articlesProvider;
+    private int totalArticles;
+    private PaginationState pagination = new() { ItemsPerPage = 10 };
+
+    protected override async Task OnInitializedAsync()
+    {
+        articlesProvider = async req =>
+        {
+            var queryParams = new Dictionary<string, object?>
+            {
+                { "skip", req.StartIndex },
+                { "limit", req.Count },
+                { "sort", req.GetSortByProperties().FirstOrDefault().PropertyName },
+                { "desc", req.GetSortByProperties().FirstOrDefault().Direction == SortDirection.Descending }
+            };
+
+            var url = Navigation.GetUriWithQueryParameters("/api/articles", queryParams);
+            var response = await Http.GetFromJsonAsync<ArticleQueryResult>(url, req.CancellationToken);
+
+            return GridItemsProviderResult.From(
+                items: response!.Articles,
+                totalItemCount: response!.TotalCount);
+        };
+
+        // Get total count
+        var initialResponse = await Http.GetFromJsonAsync<ArticleQueryResult>("/api/articles?limit=1");
+        totalArticles = initialResponse!.TotalCount;
+    }
+
+    // Add these classes to match your API response structure
+    public class ArticleQueryResult
+    {
+        public List<Article> Articles { get; set; } = new();
+        public int TotalCount { get; set; }
+    }
+}
