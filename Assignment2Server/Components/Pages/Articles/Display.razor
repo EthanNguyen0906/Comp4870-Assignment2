@@ -56,11 +56,11 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        article = await ArticleService.GetByIdAsync(ArticleId);
+        article = await ArticleService.GetArticleByIdAsync(ArticleId);
     }
 
     private void GoBack() => Navigation.NavigateTo("/articles");
-    private void EditArticle() => Navigation.NavigateTo($"/article/edit/{ArticleId}");
+    private void EditArticle() => Navigation.NavigateTo($"/articles/edit/{ArticleId}");
 
     private async Task DeleteArticle()
     {

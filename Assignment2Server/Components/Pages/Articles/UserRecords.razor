@@ -1,4 +1,4 @@
-@page "/article/userrecords"
+@page "/articles/userrecords"
 @inject NavigationManager Navigation
 @inject Assignment2Server.Services.ArticlesApiClient ArticleService
 @using Assignment2Library.Data.Models
@@ -69,11 +69,11 @@ else
 
     private void ViewArticle(int id)
     {
-        Navigation.NavigateTo($"/article/display/{id}");
+        Navigation.NavigateTo($"/articles/display/{id}");
     }
 
     private void BackToAllArticles()
     {
-        Navigation.NavigateTo("/article");
+        Navigation.NavigateTo("/articles");
     }
 }

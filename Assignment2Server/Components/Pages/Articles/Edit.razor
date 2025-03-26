@@ -1,4 +1,4 @@
-@page "/article/edit/{Id:int}"
+@page "/articles/edit/{Id:int}"
 @using Assignment2Library.Data.Models
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -58,11 +58,11 @@ else
     private async Task HandleValidSubmit()
     {
         await ArticleService.UpdateArticleAsync(article!);
-        Navigation.NavigateTo($"/article/display/{article!.ArticleId}");
+        Navigation.NavigateTo($"/articles/display/{article!.ArticleId}");
     }
 
     private void Cancel()
     {
-        Navigation.NavigateTo($"/article/display/{Id}");
+        Navigation.NavigateTo($"/articles/display/{Id}");
     }
 }

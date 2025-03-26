@@ -78,9 +78,23 @@
 
     public async Task LoginUser()
     {
+        
         var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         if (result.Succeeded)
         {
+            var user = await UserManager.FindByEmailAsync(Input.Email);
+            if (user == null)
+            {
+                errorMessage = "Invalid login attempt.";
+                return;
+            }
+
+            // If the user is not approved, do not allow sign-in.
+            if (!user.Approved)
+            {
+                errorMessage = "Your account has not yet been approved. Please contact support or wait for admin approval.";
+                return;
+            }
             Logger.LogInformation("User logged in.");
             RedirectManager.RedirectTo(ReturnUrl);
         }

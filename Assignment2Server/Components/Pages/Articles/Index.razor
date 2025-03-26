@@ -1,74 +1,132 @@
 @page "/articles"
-@using Assignment2Library.Data.Models
-@inject NavigationManager Navigation
-@inject AuthenticationStateProvider AuthStateProvider
 @rendermode InteractiveServer
+@using Assignment2Library.Data.Models
+@using Assignment2Server.Services
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using System.Linq
+@inject NavigationManager Navigation
+@inject Assignment2Server.Services.ArticlesApiClient ArticleService
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IUserService UserService
 
+<PageTitle>Articles</PageTitle>
 
-<h1 class="mb-0">Articles</h1>
+<style>
+    /* Container and layout styles */
+    .container {
+        display: flex;
+        flex-direction: column;
+        margin-top: 20px;
+        padding: 0 20px;
+    }
+    .content {
+        flex-grow: 1;
+    }
+    .table-container {
+        margin-top: 20px;
+        flex-grow: 1;
+    }
+    .table {
+        width: 100%;
+        table-layout: fixed;
+    }
+    .table th, .table td {
+        padding: 12px 15px;
+        vertical-align: middle;
+    }
+    .text-muted {
+        color: #6c757d !important;
+    }
+    .more-link {
+        font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+        cursor: pointer;
+    }
+    .more-link:hover {
+        text-decoration: underline;
+    }
+</style>
 
-    <div class="d-flex justify-content-between mt-3 mb-3">
-        <button class="btn btn-primary btn-lg shadow-sm" @onclick="ViewUserArticles">
-            <i class="bi bi-file-earmark-text me-2"></i> My Published Articles
-        </button>
-
-        <button class="btn btn-success btn-lg shadow-sm" @onclick="CreateArticle">
-            <i class="bi bi-plus-circle-fill me-2"></i> Create Article
-        </button>
-    </div>
-
-
-<div class="row">
-    @if (articles != null)
-    {
-        @foreach (var article in articles)
+<div class="container">
+    <div class="content">
+        <h1>Articles</h1>
+        @if (currentUser != null && currentUser.Approved)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 d-flex flex-column shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">@article.Title</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">
-                            @(article.Contributor != null 
-                                ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
-                                : article.ContributorUsername),
-                            @article.CreateDate.ToString("MMMM dd, yyyy")
-                        </h6>
-                        <p class="card-text">
-                            @{
-                                var excerpt = article.Body.Length > 100 ? article.Body.Substring(0, 100) : article.Body;
-                            }
-                            @excerpt
-                            @if (article.Body.Length > 100)
-                            {
-                                <a @onclick="@(() => ViewArticle(article.ArticleId))">more...</a>
-                            }
-                        </p>
-                        <div class="mt-auto">
-                            @if (article.Body.Length < 100)
-                            {
-                                <button class="btn btn-info" @onclick="@(() => ViewArticle(article.ArticleId))">
-                                    Display in full view
-                                </button>
-                            }
-                        </div>
-                    </div>
-                </div>
+            <div class="d-flex justify-content-between mt-3 mb-3">
+                <button class="btn btn-primary btn-lg shadow-sm" @onclick="ViewUserArticles">
+                    <i class="bi bi-file-earmark-text me-2"></i> My Published Articles
+                </button>
+                <button class="btn btn-success btn-lg shadow-sm" @onclick="CreateArticle">
+                    <i class="bi bi-plus-circle-fill me-2"></i> Create Article
+                </button>
             </div>
         }
-    }
+
+        @if (articles == null)
+        {
+            <p class="text-center"><em>Loading articles...</em></p>
+        }
+        else if (!articles.Any())
+        {
+            <p class="text-center">No articles found.</p>
+        }
+        else
+        {
+            <div class="table-container">
+                <QuickGrid TGridItem="Article" Items="articles.AsQueryable()" class="table table-striped">
+                    <PropertyColumn Property="@(article => article.Title)" Title="Title" Sortable="true" />
+                    <TemplateColumn Title="Contributor" Context="article">
+                        @(article.Contributor != null 
+                            ? $"{article.Contributor.FirstName} {article.Contributor.LastName}" 
+                            : article.ContributorUsername)
+                    </TemplateColumn>
+                    <TemplateColumn Title="Dates" Context="article">
+                        <small class="text-muted">
+                            Start: @article.StartDate.ToShortDateString()<br />
+                            End: @article.EndDate.ToShortDateString()
+                        </small>
+                    </TemplateColumn>
+                    <TemplateColumn Title="Excerpt" Context="article">
+                        @{
+                            var excerpt = article.Body.Length > 100 ? article.Body.Substring(0, 100) : article.Body;
+                        }
+                        @excerpt
+                        @if (article.Body.Length > 100)
+                        {
+                            <span class="more-link" @onclick="@(() => ViewArticle(article.ArticleId))"> more...</span>
+                        }
+                    </TemplateColumn>
+                    <TemplateColumn Title="Actions" Context="article">
+                        <button class="btn btn-info btn-sm" @onclick="@(() => ViewArticle(article.ArticleId))">
+                            Full View
+                        </button>
+                    </TemplateColumn>
+                </QuickGrid>
+            </div>
+        }
+    </div>
 </div>
 
 @code {
     private List<Article>? articles;
-    private bool isAuthenticated;
-    private bool approved = true; // Replace with logic to load from a service or claim
+    private User? currentUser;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        currentUser = await GetCurrentUserAsync();
+        articles = await ArticleService.GetValidArticlesAsync();
+    }
 
-       // articles = await ArticleService.GetArticlesAsync(); // You must implement this service
+    private async Task<User?> GetCurrentUserAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            return await UserService.GetUserByEmailAsync(user.Identity.Name!);
+        }
+        return null;
     }
 
     private void CreateArticle()
@@ -78,7 +136,7 @@
 
     private void ViewUserArticles()
     {
-        Navigation.NavigateTo("/article/userrecords");
+        Navigation.NavigateTo("/articles/userrecords");
     }
 
     private void ViewArticle(int id)

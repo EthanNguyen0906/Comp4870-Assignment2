@@ -1,8 +1,13 @@
 @page "/articles/create"
 @using Assignment2Library.Data.Models
+@using Assignment2Server.Data
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Identity
 @inject Assignment2Server.Services.ArticlesApiClient ArticleService
 @rendermode InteractiveServer
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+
 
 
 <h2>Create a New Article</h2>
@@ -41,19 +46,33 @@
     </div>
 </EditForm>
 
-
-
 @code {
-    private Article article = new();
+    private Article article = new Article
+    {
+        StartDate = DateTime.Today,
+        EndDate = DateTime.Today
+    };
 
     private async Task HandleValidSubmit()
     {
+        // Retrieve the authentication state
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var claimsUser = authState.User;
+
+        if (claimsUser.Identity?.IsAuthenticated == true)
+        {
+            // Use the UserManager to get the actual User object from the username.
+            var user = await UserManager.FindByNameAsync(claimsUser.Identity.Name);
+            article.ContributorUsername = user.UserName;
+        }
+
         await ArticleService.CreateArticleAsync(article);
         Navigation.NavigateTo("/articles");
     }
 
-    private async Task BackToArticles()
+    private Task BackToArticles()
     {
         Navigation.NavigateTo("/articles");
+        return Task.CompletedTask;
     }
 }
