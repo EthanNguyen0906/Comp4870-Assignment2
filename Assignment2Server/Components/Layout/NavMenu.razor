@@ -1,4 +1,8 @@
-﻿@implements IDisposable
+﻿@using Assignment2Library.Data.Models
+@using Assignment2Server.Services
+@implements IDisposable
+@inject IUserService UserService
+@inject AuthenticationStateProvider AuthStateProvider
 
 @inject NavigationManager NavigationManager
 
@@ -17,18 +21,19 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
+         <AuthorizeView>
+            <Authorized>
+                @if (isAdminApproved)
+                {
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="/admin/users">
+                            <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Admin
+                        </NavLink>
+                    </div>
+                }
+            </Authorized>
+        </AuthorizeView>
+        
 
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="auth">
@@ -39,7 +44,7 @@
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Account/Manage">
+                    <NavLink class="nav-link">
                         <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
                     </NavLink>
                 </div>
@@ -84,9 +89,60 @@
         StateHasChanged();
     }
 
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
 }
 
+@code {
+    // Add these fields
+    private bool isAdminApproved;
+    private User? currentUser;
+    private bool isLoading; // Add loading flag
+    private SemaphoreSlim semaphore = new(1, 1); // Add semaphore
+
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+        await LoadUserStatus();
+    }
+
+    private async Task LoadUserStatus()
+    {
+        await semaphore.WaitAsync();
+        try
+        {
+            if (isLoading) return;
+            
+            isLoading = true;
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                currentUser = await UserService.GetUserByEmailAsync(user.Identity.Name!);
+                isAdminApproved = currentUser?.Role == "Admin" && currentUser.Approved;
+            }
+            else
+            {
+                currentUser = null;
+                isAdminApproved = false;
+            }
+        }
+        finally
+        {
+            isLoading = false;
+            semaphore.Release();
+        }
+    }
+
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        await LoadUserStatus();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        // Combine all cleanup operations here
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+        semaphore?.Dispose(); // Clean up the semaphore
+    }
+}

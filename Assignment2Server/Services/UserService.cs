@@ -3,71 +3,105 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace Assignment2Server.Services
 {
     public class UserService : IUserService
     {
+         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
         private readonly UserManager<User> _userManager;
-        
-        public UserService(UserManager<User> userManager)
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _userLocks = new();
+
+        public UserService(
+            IDbContextFactory<ApplicationDbContext> contextFactory,
+            UserManager<User> userManager)
         {
+            _contextFactory = contextFactory;
             _userManager = userManager;
         }
-        
+
         public async Task<List<User>> GetUsersAsync()
         {
-            return await _userManager.Users.ToListAsync();
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Users.AsNoTracking().ToListAsync();
         }
-        
+
+
         public async Task DeleteUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            await ExecuteUserOperation(id, async user =>
             {
                 await _userManager.DeleteAsync(user);
-            }
+            });
         }
-        
+
         public async Task ApproveUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            await ExecuteUserOperation(id, async user =>
             {
                 user.Approved = true;
                 await _userManager.UpdateAsync(user);
-            }
+            });
         }
-        
+
         public async Task UnapproveUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            await ExecuteUserOperation(id, async user =>
             {
                 user.Approved = false;
                 await _userManager.UpdateAsync(user);
-            }
+            });
         }
-        
+
         public async Task PromoteUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            await ExecuteUserOperation(id, async user =>
             {
-                // Set the role to "Admin"
                 user.Role = "Admin";
                 await _userManager.UpdateAsync(user);
-            }
+            });
         }
-        
+
         public async Task DemoteUserAsync(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            await ExecuteUserOperation(id, async user =>
             {
-                // Revert the role to "Contributor"
                 user.Role = "Contributor";
                 await _userManager.UpdateAsync(user);
+            });
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            // Use AsNoTracking for read-only operations
+            return await _userManager.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        private async Task ExecuteUserOperation(string userId, Func<User, Task> operation)
+        {
+            var semaphore = _userLocks.GetOrAdd(userId, _ => new SemaphoreSlim(1, 1));
+            
+            try
+            {
+                await semaphore.WaitAsync();
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    await operation(user);
+                }
+            }
+            finally
+            {
+                semaphore.Release();
+                // Cleanup unused semaphores to prevent memory leaks
+                if (semaphore.CurrentCount == 1)
+                {
+                    _userLocks.TryRemove(userId, out _);
+                }
             }
         }
     }
